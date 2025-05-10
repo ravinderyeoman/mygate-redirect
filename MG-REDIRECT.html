@@ -1,11 +1,40 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta http-equiv="refresh"
-      content="0; url=https://business.mygate.in/kiosk/inviteCheckin/0?companyId=67ab33b1c9e77c0007684b07&deviceId=add2fcb1-a856-460a-89fe-73bdc33ece93&employeeId=273629" />
-    <title>Redirecting…</title>
-  </head>
-  <body>
-    <p>Redirecting to check-in…</p>
-  </body>
+<head>
+  <title>QR Code Check-In</title>
+  <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+</head>
+<body>
+  <h2>Scan Employee QR Code</h2>
+  <div id="reader" style="width:300px;"></div>
+  <p id="status"></p>
+
+  <script>
+    function postData(employeeId) {
+      document.getElementById("status").innerText = `Submitting ${employeeId}...`;
+
+      fetch("https://script.google.com/macros/s/https://script.google.com/macros/s/AKfycbyUlhg42xq_50A6G1u4P0eST8pR-0XUaoAVV5kkVPkNj0lnggDxdlV5VT-TYR_Ee74A/exec", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: employeeId })
+      })
+      .then(res => res.text())
+      .then(txt => {
+        document.getElementById("status").innerText = txt;
+      })
+      .catch(err => {
+        document.getElementById("status").innerText = "Error submitting data.";
+      });
+    }
+
+    function onScanSuccess(decodedText, decodedResult) {
+      html5QrcodeScanner.clear();
+      postData(decodedText);
+    }
+
+    var html5QrcodeScanner = new Html5QrcodeScanner(
+      "reader", { fps: 10, qrbox: 250 });
+    html5QrcodeScanner.render(onScanSuccess);
+  </script>
+</body>
 </html>
